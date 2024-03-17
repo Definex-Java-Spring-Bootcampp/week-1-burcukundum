@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
+
+    static List<Order> orderList = new ArrayList<>();
     private BigDecimal totalAmount;
     private Invoice invoice;
     private Customer customer;
@@ -13,13 +15,21 @@ public class Order {
     private String trackingNumber;
 
 
-    public Order(BigDecimal totalAmount, Invoice invoice, Customer customer, LocalDateTime orderDate, ArrayList productsList, OrderStatus orderStatus) {
-        this.totalAmount = totalAmount;
-        this.invoice = invoice;
+    public Order(Customer customer, LocalDateTime orderDate, ArrayList<Product> productsList) {
+
         this.customer = customer;
         this.orderDate = orderDate;
         this.productsList = productsList;
-        this.orderStatus = orderStatus;
+        this.orderStatus = OrderStatus.DRAFT;
+
+        double totalPrice = 0.0;
+        for (Product product : productsList) {
+            totalPrice += product.getPrice() ;
+        }
+        this.totalAmount = BigDecimal.valueOf(totalPrice);
+
+        orderList.add(this);
+
     }
 
     public String getTrackingNumber() {
@@ -36,14 +46,6 @@ public class Order {
 
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
-    }
-
-    public Invoice getInvoice() {
-        return invoice;
-    }
-
-    public void setInvoice(Invoice invoice) {
-        this.invoice = invoice;
     }
 
     public Customer getCustomer() {
@@ -90,6 +92,24 @@ public class Order {
                 '}';
     }
 
+    public static double totalProductNumberbyName(String calledName) {
+        double totalSum = 0.0;
+        for (Order order : orderList) {
+            if (order.customer.getName() == calledName) {
+                for (Product product : order.getProductsList()) {
+                    totalSum += 1; // Assuming Product has a getPrice() method
+                }
+            }
+        }
+        return totalSum;
+    }
+
+    public static BigDecimal calculateTotalAmount(String searchedName) {
+        return orderList.stream()
+                .filter(order -> order.customer.getName() == searchedName && order.customer.getAge() < 30 && order.customer.getAge() > 25)
+                .map(Order::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
 
 

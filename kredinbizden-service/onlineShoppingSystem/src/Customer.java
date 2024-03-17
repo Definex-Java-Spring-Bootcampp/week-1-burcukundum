@@ -1,29 +1,48 @@
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Customer {
 
+    static Set<Customer> customerList = new HashSet<>();
     private String name;
     private String surname;
-    private List<Order> orderList;
     private int age;
     private String email;
     private String phoneNumber;
 
-    public Customer(String name, String surname, List<Order> orderList, int age, String email, String phoneNumber) {
-        this.name = name;
-        this.surname = surname;
-        this.orderList = orderList;
-        this.age = age;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
+    public Customer(String name, String surname, int age, String email, String phoneNumber) {
+
+        Try:
+            this.name = name;
+            this.surname = surname;
+            this.age = age;
+            this.email = email;
+            this.phoneNumber = phoneNumber;
+            customerList.add(this);
+        Exception:
+            System.out.println("This customer has already been created.");
     }
 
-    public Customer(String name, String surname, List<Order> orderList) {
+    public Customer(String name, String surname) {
+        Try:
+            this.name = name;
+            this.surname = surname;
+            customerList.add(this);
+        Exception:
+            System.out.println("This customer has already been created.");
+    }
+
+    public Customer(String name, String surname, int age) {
+        Try:
         this.name = name;
         this.surname = surname;
-        this.orderList = orderList;
+        this.age = age;
+        customerList.add(this);
+        Exception:
+        System.out.println("This customer has already been created.");
     }
 
     public String getEmail() {
@@ -66,56 +85,19 @@ public class Customer {
         this.surname = surname;
     }
 
-    public List<Order> getOrderList() {
-        return orderList;
-    }
-
-    public void setOrderList(List<Order> orderList) {
-        this.orderList = orderList;
-    }
-
     @Override
     public String toString() {
         return "Customer{" +
                 "name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
-                ", orderList=" + orderList +
                 '}';
     }
 
-    public static int totalCustomerNumber(List<Customer> customerList) {
+    public static int totalCustomerNumber() {
         if (customerList == null) {
             return 0;
         }
         return customerList.size();
     }
-
-    public void addOrder(Order order){
-        orderList.add(order);
-    }
-
-    public static long totalProductNumberbyName(List<Customer> customerList, String calledName) {
-        return customerList.stream()
-                .filter(customer -> customer.name.equals(calledName))
-                .flatMap(customer -> customer.orderList.stream())
-                .mapToLong(order -> order.productsList.size())
-                .sum();
-    }
-
-    public static BigDecimal calculateTotalAmount(List<Customer> customerList, String searchedName) {
-        return customerList.stream()
-                .filter(customer -> customer.name.equals(searchedName) && customer.age < 30 && customer.age > 25)
-                .flatMap(customer -> customer.orderList.stream())
-                .map(Order::getTotalAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public List<Invoice> getHighValueInvoices(BigDecimal thresholdAmount) {
-        return orderList.stream()
-                .filter(order -> order.getInvoice().getAmount().compareTo(thresholdAmount) > 0)
-                .map(order -> order.getInvoice())
-                .collect(Collectors.toList());
-    }
-
 
 }

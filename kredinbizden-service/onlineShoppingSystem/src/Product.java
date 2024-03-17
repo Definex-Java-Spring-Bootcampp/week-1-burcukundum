@@ -8,7 +8,7 @@ public class Product {
         this.name = name;
         this.price = price;
         this.category = category;
-        this.stockQuantity = stockQuantity;
+        this.stockQuantity = stock;
     }
 
     public String getName() {
