@@ -8,6 +8,16 @@ public class Bank {
     private List<Loan> loanList;
     private List<CreditCard> creditCards;
 
+    public Bank(String name, List<Loan> loanList, List<CreditCard> creditCards) {
+        this.name = name;
+        this.loanList = loanList;
+        this.creditCards = creditCards;
+    }
+
+    public Bank(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }

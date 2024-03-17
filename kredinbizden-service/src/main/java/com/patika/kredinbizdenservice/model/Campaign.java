@@ -22,6 +22,10 @@ public class Campaign {
         this.sector = sector;
     }
 
+    public Campaign(String title) {
+        this.title = title;
+    }
+
     public String getTitle() {
         return title;
     }

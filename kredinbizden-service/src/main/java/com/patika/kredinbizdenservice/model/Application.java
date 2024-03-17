@@ -4,12 +4,14 @@ package com.patika.kredinbizdenservice.model;
 import com.patika.kredinbizdenservice.enums.ApplicationStatus;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
+import static com.patika.kredinbizdenservice.model.User.userList;
 
 public class Application {
+
+    static List<Application> loanlist = new ArrayList<>();
+    static List<Application> allApplicationsList = new ArrayList<>();
 
     private Loan loan;
     private Product product;
@@ -17,8 +19,8 @@ public class Application {
     private LocalDateTime localDateTime;
     private ApplicationStatus applicationStatus;
 
-    private Application() {
-    }
+    //private Application() {
+    //}
 
     /*
     public Application(CreditCard creditCard, User user, LocalDateTime localDateTime) {
@@ -33,6 +35,7 @@ public class Application {
         this.user = user;
         this.localDateTime = localDateTime;
         this.applicationStatus = ApplicationStatus.INITIAL;
+        allApplicationsList.add(this);
     }
 
     public Application(Loan loan, User user, LocalDateTime localDateTime) {
@@ -40,6 +43,8 @@ public class Application {
         this.user = user;
         this.localDateTime = localDateTime;
         this.applicationStatus = ApplicationStatus.INITIAL;
+        loanlist.add(this);
+        allApplicationsList.add(this);
     }
 
     public Loan getLoan() {
@@ -84,38 +89,46 @@ public class Application {
                 '}';
     }
 
-    public static LoanInfo findHighestLoan(List<Application> applications) {
-        Optional<Application> highestLoanApp = applications.stream()
+    public static LoanInfo findHighestLoan() {
+        Optional<Application> highestLoanApp = loanlist.stream()
                 .filter(app -> app.getLoan() != null)
                 .max(Comparator.comparing(app -> app.getLoan().getAmount()));
 
         if (highestLoanApp.isPresent()) {
             Application application = highestLoanApp.get();
+            System.out.println(String.format("%s %s, %s", application.getUser().getName(), application.getUser().getSurname(),
+                    application.getLoan().getAmount()));
             return new LoanInfo(application.getUser().getName(), application.getLoan().getAmount());
         } else {
             return null;
         }
     }
-    public static List<Application> getApplicationsLastMonth(List<Application> allApplications) {
+
+    public static List<Application> getApplicationsLastMonth() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneMonthAgo = now.minusMonths(1);
 
         List<Application> applicationsLastMonth = new ArrayList<>();
-        for (Application application : allApplications) {
+
+        for (Application application : allApplicationsList) {
+
             if (application.getLocalDateTime().isAfter(oneMonthAgo) && application.getLocalDateTime().isBefore(now)) {
-                applicationsLastMonth.add(application);
+               applicationsLastMonth.add(application);
             }
         }
         return applicationsLastMonth;
     }
 
-    public static List<Application> getApplicationsByEmail(List<Application> allApplications, String email) {
-        List<Application> userApplications = new ArrayList<>();
-        for (Application application : allApplications) {
+    public static List<Application> getApplicationsByEmail(String email) {
+
+        List<Application> email_applications = new ArrayList<>();
+        for (Application application : allApplicationsList) {
             if (application.getUser().getEmail().equals(email)) {
-                userApplications.add(application);
+                email_applications.add(application);
             }
         }
-        return userApplications;
+        return email_applications;
+
     }
+
 }

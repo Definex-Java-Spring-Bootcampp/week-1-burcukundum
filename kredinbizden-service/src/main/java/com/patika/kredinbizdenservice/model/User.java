@@ -8,10 +8,13 @@ import java.nio.charset.StandardCharsets;
 import java.math.BigInteger;
 import java.util.stream.Collectors;
 
+import static com.patika.kredinbizdenservice.model.Application.allApplicationsList;
+
 
 public class User {
 
     private static final Set<String> usersEmailList = new HashSet<>();
+    static List<User> userList = new ArrayList<>();
 
     private String name;
     private String surname;
@@ -20,9 +23,14 @@ public class User {
     private String hashedPassword; //hash fonskiyonlarından biri ile hashlanecek.
     private String phoneNumber;
     private Boolean isActive;
-    private List<Application> applicationList;
+    protected List<Application> applicationList;
 
     public User(String name, String surname, LocalDate birthDate, String email, String password, String phoneNumber, Boolean isActive) {
+        if(usersEmailList.contains(email)){
+            System.out.println("A user with this email already exists.");
+            return;
+        }
+        usersEmailList.add(email);
         this.name = name;
         this.surname = surname;
         this.birthDate = birthDate;
@@ -30,16 +38,33 @@ public class User {
         this.setPassword(password);
         this.phoneNumber = phoneNumber;
         this.isActive = isActive;
+        this.applicationList = new ArrayList<>();
+        userList.add(this);
 
-        if(usersEmailList.contains(email)){
-            throw new IllegalArgumentException("A user with this email already exists.");
-        }
-        usersEmailList.add(email);
     }
 
+    public User(String name, String surname, String email,String password) {
+        if(usersEmailList.contains(email)){
+            System.out.println("A user with this email already exists.");
+            return;
+        }
+        usersEmailList.add(email);
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.setPassword(password);
+        this.applicationList = new ArrayList<>();
+        userList.add(this);
 
+
+    }
 
     public User(String name, String surname, String email, String password, String phoneNumber, Boolean isActive, List<Application> applicationList) {
+        if (usersEmailList.contains(email)) {
+            System.out.println("A user with this email already exists.");
+            return;
+        }
+        usersEmailList.add(email);
         this.name = name;
         this.surname = surname;
         this.email = email;
@@ -47,6 +72,9 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.isActive = isActive;
         this.applicationList = new ArrayList<>();
+        userList.add(this);
+
+
     }
 
     public String getName() {
@@ -113,23 +141,36 @@ public class User {
         this.applicationList = applicationList;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", birthDate=" + birthDate +
+                ", email='" + email + '\'' +
+                ", hashedPassword='" + hashedPassword + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", isActive=" + isActive +
+                ", applicationList=" + applicationList +
+                '}';
+    }
+
     private String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
             byte[] hashBytes = md.digest(password.getBytes(StandardCharsets.UTF_8));
 
-            // Hashlenmiş byte dizisini hex formatına dönüştür
+
             BigInteger hashNum = new BigInteger(1, hashBytes);
             StringBuilder hashString = new StringBuilder(hashNum.toString(16));
 
-            // Eğer hex string boyutu 32'ye tamamlanmamışsa başına sıfır ekle
+
             while (hashString.length() < 32) {
                 hashString.insert(0, "0");
             }
             return hashString.toString();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-            // İstisna durumunda null döndürülebilir veya hata yönetimi yapılabilir
             return null;
         }
     }
@@ -145,16 +186,29 @@ public class User {
             applicationList.add(application);
         }
     }
-    public User findMostAppliedUser() {
-        Optional<User> mostAppliedUser = applicationList.stream()
-                .map(Application::getUser)
-                .collect(Collectors.groupingBy(user -> user, Collectors.counting()))
-                .entrySet()
-                .stream()
-                .max(Comparator.comparingLong(Map.Entry::getValue))
-                .map(Map.Entry::getKey);
+    public static User findMostAppliedUser() {
+        Map<User, Integer> applicationCounts = new HashMap<>();
 
-        return mostAppliedUser.orElse(null);
+        // Count applications for each user
+        for (Object obj : allApplicationsList) {
+            if (obj instanceof Application) {
+                User user = ((Application) obj).getUser();
+                applicationCounts.put(user, applicationCounts.getOrDefault(user, 0) + 1);
+            }
+        }
+
+        // Find the user with the highest application count
+        User mostAppliedUser = null;
+        int maxApplications = 0;
+        for (Map.Entry<User, Integer> entry : applicationCounts.entrySet()) {
+            if (entry.getValue() > maxApplications) {
+                maxApplications = entry.getValue();
+                mostAppliedUser = entry.getKey();
+            }
+        }
+
+        return mostAppliedUser;
     }
+
 
 }

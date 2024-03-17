@@ -1,10 +1,13 @@
 package com.patika.kredinbizdenservice.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class CreditCard implements Product{
+
+    static List<CreditCard> creditCardList = new ArrayList<>();
 
     private BigDecimal fee;
     private List<Campaign> campaignList;
@@ -13,6 +16,7 @@ public class CreditCard implements Product{
     public CreditCard(BigDecimal fee, List<Campaign> campaignList) {
         this.fee = fee;
         this.campaignList = campaignList;
+        creditCardList.add(this);
     }
 
     public BigDecimal getFee() {
@@ -52,8 +56,8 @@ public class CreditCard implements Product{
         return campaignList.size();
     }
 
-    public static List<CreditCard> sortCreditCardsByCampaignCount(List<CreditCard> creditCards) {
-        creditCards.sort(Comparator.comparingInt(CreditCard::getCampaignCount).reversed());
-        return creditCards;
+    public static List<CreditCard> sortCreditCardsByCampaignCount() {
+        creditCardList.sort(Comparator.comparingInt(CreditCard::getCampaignCount).reversed());
+        return creditCardList;
     }
 }
